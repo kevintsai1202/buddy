@@ -165,14 +165,12 @@ grep -o '"oauthAccount"' /c/Users/${USER}/.claude.json
 ```bash
 bun --version   # 需要 Bun
 python --version  # 需要 Python 3.8+
-git --version
 ```
 
-#### Step 2：clone 並啟動
+#### Step 2：啟動互動介面
 
 ```bash
-git clone https://github.com/mitchhuang777/ClaudePetRebirth
-cd ClaudePetRebirth
+cd <skill-path>/scripts/claude-pet-rebirth
 python main.py
 ```
 
