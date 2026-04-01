@@ -30,19 +30,17 @@ hash(userID + SALT)  →  Mulberry32 PRNG  →  寵物屬性
 
 ## 可用寵物
 
-![寵物列表](assets/pet-list.png)
-
-| 物種 | 中文名 | Emoji | 物種 | 中文名 | Emoji |
-|------|--------|-------|------|--------|-------|
-| duck | 小鴨 | 🦆 | snail | 蝸牛 | 🐌 |
-| goose | 鵝鵝 | 🪿 | ghost | 幽靈 | 👻 |
-| blob | 軟泥怪 | 🫧 | axolotl | 六角恐龍 | 🦎 |
-| cat | 貓貓 | 🐱 | capybara | 水豚 | 🦫 |
-| dragon | 龍 | 🐉 | cactus | 仙人掌 | 🌵 |
-| octopus | 章魚 | 🐙 | robot | 機器人 | 🤖 |
-| owl | 貓頭鷹 | 🦉 | rabbit | 兔兔 | 🐰 |
-| penguin | 企鵝 | 🐧 | mushroom | 蘑菇 | 🍄 |
-| turtle | 烏龜 | 🐢 | chonk | 肥貓 | 🐈 |
+| 物種    | 中文名 | Emoji | 物種     | 中文名   | Emoji |
+| ------- | ------ | ----- | -------- | -------- | ----- |
+| duck    | 小鴨   | 🦆    | snail    | 蝸牛     | 🐌    |
+| goose   | 鵝鵝   | 🪿    | ghost    | 幽靈     | 👻    |
+| blob    | 軟泥怪 | 🫧    | axolotl  | 六角恐龍 | 🦎    |
+| cat     | 貓貓   | 🐱    | capybara | 水豚     | 🦫    |
+| dragon  | 龍     | 🐉    | cactus   | 仙人掌   | 🌵    |
+| octopus | 章魚   | 🐙    | robot    | 機器人   | 🤖    |
+| owl     | 貓頭鷹 | 🦉    | rabbit   | 兔兔     | 🐰    |
+| penguin | 企鵝   | 🐧    | mushroom | 蘑菇     | 🍄    |
+| turtle  | 烏龜   | 🐢    | chonk    | 肥貓     | 🐈    |
 
 稀有度機率：common(60%) → uncommon(25%) → rare(10%) → epic(4%) → **legendary(1%)**
 
@@ -79,6 +77,7 @@ bun buddy-reroll.js --species duck --min-stats 80
 ```
 
 輸出範例：
+
 ```
 Runtime: bun (Bun.hash)
 Searching: species=dragon, rarity>=legendary (max 50,000,000, find 1)
@@ -114,11 +113,13 @@ bun buddy-reroll.js --check <uid>
 OAuth 登入時 `accountUuid` 會覆蓋 `userID`，需要特殊方式繞過：
 
 **步驟 1**：在終端機執行取得 token
+
 ```bash
 claude setup-token
 ```
 
 **步驟 2**：替換 `~/.claude.json` 為最小設定並加入目標 userID
+
 ```json
 {
   "hasCompletedOnboarding": true,
@@ -147,29 +148,45 @@ CLAUDE_CODE_OAUTH_TOKEN="<你的token>" claude
 
 ## 選項說明
 
-| 選項 | 說明 | 預設值 |
-|------|------|--------|
-| `--species <name>` | 指定物種 | 任意 |
-| `--rarity <name>` | 最低稀有度 | 任意 |
-| `--eye <char>` | 眼睛樣式（`· ✦ × ◉ @ °`） | 任意 |
-| `--hat <name>` | 帽子（none/crown/tophat/propeller/halo/wizard/beanie/tinyduck） | 任意 |
-| `--shiny` | 要求閃光版（1% 機率） | false |
-| `--min-stats [value]` | 所有屬性最低值 | 90 |
-| `--count <n>` | 找到幾個結果 | 3 |
-| `--max <n>` | 最大迭代次數 | 50,000,000 |
-| `--check <uid>` | 查看指定 uid 對應的寵物 | — |
+| 選項                    | 說明                                                            | 預設值     |
+| ----------------------- | --------------------------------------------------------------- | ---------- |
+| `--species <name>`    | 指定物種                                                        | 任意       |
+| `--rarity <name>`     | 最低稀有度                                                      | 任意       |
+| `--eye <char>`        | 眼睛樣式（`· ✦ × ◉ @ °`）                                | 任意       |
+| `--hat <name>`        | 帽子（none/crown/tophat/propeller/halo/wizard/beanie/tinyduck） | 任意       |
+| `--shiny`             | 要求閃光版（1% 機率）                                           | false      |
+| `--min-stats [value]` | 所有屬性最低值                                                  | 90         |
+| `--count <n>`         | 找到幾個結果                                                    | 3          |
+| `--max <n>`           | 最大迭代次數                                                    | 50,000,000 |
+| `--check <uid>`       | 查看指定 uid 對應的寵物                                         | —         |
 
 ---
 
 ## Claude Code Skill
 
-本專案附帶 Claude Code skill，讓 AI 助手自動執行整個流程：
+本專案附帶 Claude Code skill，讓 AI 助手自動執行整個流程。
 
-```
-buddy-reroll/SKILL.md
+### 安裝方式一：npx（推薦）
+
+```bash
+npx skills add https://github.com/kevintsai1202/buddy
 ```
 
-將 `buddy-reroll/` 資料夾複製到 `~/.claude/skills/` 即可使用。之後只要說：
+### 安裝方式二：手動複製
+
+將 `buddy-reroll/` 資料夾複製到 `~/.claude/skills/`：
+
+```bash
+# Mac / Linux
+cp -r buddy-reroll ~/.claude/skills/
+
+# Windows PowerShell
+Copy-Item -Recurse buddy-reroll $env:USERPROFILE\.claude\skills\
+```
+
+### 使用方式
+
+安裝後只要說：
 
 > 「幫我刷一隻 legendary dragon」
 
@@ -192,7 +209,6 @@ Claude 就會自動執行腳本、判斷用戶類型、寫入設定。
 - **[Claude Code /buddy 宠物系统逆向分析 —— 如何重置并刷到你想要的宠物](https://linux.do/t/topic/1871870)**
   by [@nemomen](https://linux.do/u/nemomen)（LINUX DO）
   — 核心逆向分析：SALT、hash 算法、userID 機制、reroll 腳本原型
-
 - **[Claude Oauth登录刷 /buddy 宠物的方法找到了](https://linux.do/t/topic/1873901)**
   by [@NaynIruR / ruri39](https://linux.do/u/ruri39)（LINUX DO）
   — OAuth 用戶解法：`CLAUDE_CODE_OAUTH_TOKEN` 環境變數繞過 accountUuid
