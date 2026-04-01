@@ -233,7 +233,7 @@ cat > /c/Users/${USER}/.claude.json << 'EOF'
 }
 EOF
 ```
-然後提示使用者用 `$env:CLAUDE_CODE_OAUTH_TOKEN="<token>"; claude` 啟動
+然後提示使用者直接執行 `claude` 啟動（已用 `claude setup-token` 設定過 token 的用戶無需加環境變數）
 
 5. **提示使用者執行 `/buddy` 領取**
 
@@ -282,13 +282,21 @@ EOF
 
 > 注意：`theme` 保留使用者偏好，`companion` 欄位不寫入（讓系統重新生成名字）
 
-### 步驟 3：用環境變數啟動 Claude Code
+### 步驟 3：啟動 Claude Code
 
-在 **PowerShell** 執行（讓 accountUuid 不被寫入）：
+若已執行過 `claude setup-token`，直接在 PowerShell 執行：
+
+```powershell
+claude
+```
+
+若尚未設定 token，改用環境變數方式：
 
 ```powershell
 $env:CLAUDE_CODE_OAUTH_TOKEN="<你的token>"; claude
 ```
+
+> **提示**：執行一次 `claude setup-token` 後，之後每次只需 `claude` 即可，不需再帶 token。
 
 ### 步驟 4：執行 `/buddy` 領取
 
@@ -298,7 +306,6 @@ $env:CLAUDE_CODE_OAUTH_TOKEN="<你的token>"; claude
 
 - 原始備份在 `~/.claude.json.backup`，如需還原：`cp ~/.claude.json.backup ~/.claude.json`
 - 若重啟後還是舊寵物，確認 `.claude.json` 沒有 `oauthAccount` 欄位
-- 每次正常啟動 claude（不帶環境變數）可能會重新寫入 `accountUuid`，如需長久保留請每次用 `CLAUDE_CODE_OAUTH_TOKEN` 方式啟動
 
 ---
 
