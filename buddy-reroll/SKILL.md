@@ -36,18 +36,29 @@ config.oauthAccount?.accountUuid  // OAuth 登入用戶
 
 腳本路徑：`<skill-path>/scripts/buddy-reroll.js`
 
-執行前確認 Bun 已安裝（必須用 Bun，Node.js 結果不正確）：
+> ⚠️ **必須使用 Bun 執行，不可使用 Node.js！**
+> Claude Code 二進位以 Bun 打包，使用 `Bun.hash()`。
+> Node.js 使用 FNV-1a，hash 結果完全不同，寫入後領到的寵物不符預期。
+
+**Claude 執行：先檢查 Bun 是否已安裝**
 
 ```bash
 bun --version
 ```
 
-若未安裝，Windows 執行：
+若指令不存在（exit code 127），依作業系統引導安裝：
+
+**Windows（PowerShell）：**
 ```powershell
 powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
-安裝後重新開啟終端機才能使用 `bun` 指令。
+**Mac / Linux：**
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+安裝完成後提示使用者：**重新開啟終端機** 才能使用 `bun` 指令，然後繼續後續步驟。
 
 ### 步驟 2：執行 Reroll 腳本
 
@@ -135,7 +146,15 @@ bun <skill-path>/scripts/buddy-reroll.js --species cat --min-stats 80
 
 ### 自動執行流程
 
-1. **先判斷用戶類型**：
+1. **先確認 Bun 已安裝**：
+
+```bash
+bun --version
+```
+
+若未安裝，依平台引導安裝後，提示用戶重新開啟終端機再繼續。
+
+2. **判斷用戶類型**：
 ```bash
 grep -o '"oauthAccount"' /c/Users/${USER}/.claude.json
 # 有輸出 = OAuth 用戶，走 OAuth 流程
