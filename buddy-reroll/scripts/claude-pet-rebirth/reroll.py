@@ -132,11 +132,17 @@ def main():
     cpu_count = multiprocessing.cpu_count()
     print(f"開始搜尋（{cpu_count} 核心）...")
 
+    _last_print = [0.0]
+
     def on_progress(info):
+        now = info["elapsed"]
+        if now - _last_print[0] < 2.0:
+            return
+        _last_print[0] = now
         rate = info["rate"]
         rate_str = f"{rate/1000:.0f}k/s" if rate < 1e6 else f"{rate/1e6:.1f}M/s"
         sys.stdout.write(
-            f"\r  {info['attempts']:,} 次嘗試  {rate_str}  {info['elapsed']:.1f}s"
+            f"\r  {info['attempts']:,} 次嘗試  {rate_str}  {now:.0f}s"
         )
         sys.stdout.flush()
 
@@ -180,9 +186,12 @@ def main():
     # 更新 companion
     species = result["species"]
     personality = DEFAULT_PERSONALITIES.get(species, "A loyal coding companion.")
-    name = input(f"幫你的 {species} 取個名字：").strip()
-    if not name:
-        name = species.capitalize()
+    if args.name:
+        name = args.name
+    else:
+        name = input(f"幫你的 {species} 取個名字（直接 Enter 使用 {species.capitalize()}）：").strip()
+        if not name:
+            name = species.capitalize()
     update_companion(name=name, personality=personality)
     print(f"\n寵物名字：{name}")
     print("完成！重啟 Claude Code 後執行 /buddy 即可看到新寵物。\n")
