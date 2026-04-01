@@ -32,20 +32,24 @@ config.oauthAccount?.accountUuid  // OAuth 登入用戶
 
 ## 操作流程（API Key 用戶）
 
-### 步驟 1：確認腳本位置
+### 步驟 1：確認腳本
 
-腳本 `buddy-reroll.js` 預設放在 `d:\GitHub\buddy\` 目錄下。
+腳本內容存放於本 skill 的 `reference.md`。
 
-確認 Bun 已安裝：
+執行前確認 Bun 已安裝：
 ```bash
 bun --version
+```
+
+若工作目錄沒有 `buddy-reroll.js`，從 `reference.md` 取得腳本內容寫入當前目錄：
+```bash
+# Claude 執行：讀取 skill 的 reference.md，將腳本寫入工作目錄
 ```
 
 ### 步驟 2：執行 Reroll 腳本
 
 基本用法（找 legendary，預設找 3 個）：
 ```bash
-cd d:\GitHub\buddy
 bun buddy-reroll.js --rarity legendary
 ```
 
