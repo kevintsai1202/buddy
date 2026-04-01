@@ -32,37 +32,40 @@ config.oauthAccount?.accountUuid  // OAuth 登入用戶
 
 ## 操作流程（API Key 用戶）
 
-### 步驟 1：確認腳本
+### 步驟 1：確認 Bun 已安裝
 
-腳本內容存放於本 skill 的 `reference.md`。
+腳本路徑：`<skill-path>/scripts/buddy-reroll.js`
 
-執行前確認 Bun 已安裝：
+執行前確認 Bun 已安裝（必須用 Bun，Node.js 結果不正確）：
+
 ```bash
 bun --version
 ```
 
-若工作目錄沒有 `buddy-reroll.js`，從 `reference.md` 取得腳本內容寫入當前目錄：
-```bash
-# Claude 執行：讀取 skill 的 reference.md，將腳本寫入工作目錄
+若未安裝，Windows 執行：
+```powershell
+powershell -c "irm bun.sh/install.ps1 | iex"
 ```
+
+安裝後重新開啟終端機才能使用 `bun` 指令。
 
 ### 步驟 2：執行 Reroll 腳本
 
 基本用法（找 legendary，預設找 3 個）：
 ```bash
-bun buddy-reroll.js --rarity legendary
+bun <skill-path>/scripts/buddy-reroll.js --rarity legendary
 ```
 
 指定物種 + legendary：
 ```bash
-bun buddy-reroll.js --species duck --rarity legendary
+bun <skill-path>/scripts/buddy-reroll.js --species duck --rarity legendary
 ```
 
 常用選項：
 ```bash
-bun buddy-reroll.js --species dragon --rarity legendary --count 1
-bun buddy-reroll.js --rarity legendary --shiny          # 要閃光版
-bun buddy-reroll.js --species cat --min-stats 80        # 所有屬性>=80
+bun <skill-path>/scripts/buddy-reroll.js --species dragon --rarity legendary --count 1
+bun <skill-path>/scripts/buddy-reroll.js --rarity legendary --shiny
+bun <skill-path>/scripts/buddy-reroll.js --species cat --min-stats 80
 ```
 
 可用物種：
@@ -141,8 +144,7 @@ grep -o '"oauthAccount"' /c/Users/${USER}/.claude.json
 
 2. **執行 reroll 腳本**（必須用 bun，不能用 node）：
 ```bash
-cd d:\GitHub\buddy
-/c/Users/${USER}/.bun/bin/bun buddy-reroll.js --species <物種> --rarity legendary --count 1
+bun <skill-path>/scripts/buddy-reroll.js --species <物種> --rarity legendary --count 1
 ```
 
 3. **API Key 用戶 - 直接寫入 userID**：

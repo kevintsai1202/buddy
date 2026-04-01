@@ -1,15 +1,3 @@
-# Buddy Reroll Script
-
-腳本執行前請確認 Bun 已安裝：`bun --version`
-
-執行方式：
-```bash
-bun buddy-reroll.js --species dragon --rarity legendary --count 1
-```
-
-若腳本不存在，將以下內容寫入工作目錄的 `buddy-reroll.js`：
-
-```javascript
 #!/usr/bin/env node
 // buddy-reroll.js
 // Buddy reroll script — supports both Node.js and Bun
@@ -151,6 +139,7 @@ Options:
         }
     }
 
+    // Validate
     if (opts.species && !SPECIES.includes(opts.species)) {
         console.error(`Unknown species: ${opts.species}\nAvailable: ${SPECIES.join(', ')}`)
         process.exit(1)
@@ -241,4 +230,3 @@ if (found === 0) {
 } else {
     console.log(`Found ${found} match(es) in ${elapsed}s`)
 }
-```

@@ -185,6 +185,20 @@ Claude 就會自動執行腳本、判斷用戶類型、寫入設定。
 
 ---
 
+## 致謝
+
+本工具基於以下社群研究成果，感謝原作者的逆向分析與分享：
+
+- **[Claude Code /buddy 宠物系统逆向分析 —— 如何重置并刷到你想要的宠物](https://linux.do/t/topic/1871870)**
+  by [@nemomen](https://linux.do/u/nemomen)（LINUX DO）
+  — 核心逆向分析：SALT、hash 算法、userID 機制、reroll 腳本原型
+
+- **[Claude Oauth登录刷 /buddy 宠物的方法找到了](https://linux.do/t/topic/1873901)**
+  by [@NaynIruR / ruri39](https://linux.do/u/ruri39)（LINUX DO）
+  — OAuth 用戶解法：`CLAUDE_CODE_OAUTH_TOKEN` 環境變數繞過 accountUuid
+
+---
+
 ## 授權
 
 MIT
