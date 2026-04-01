@@ -188,16 +188,16 @@ def main():
     print("完成！重啟 Claude Code 後執行 /buddy 即可看到新寵物。\n")
 
 
-def _find_salt_flexible(user_id, desired_filter, on_progress):
-    """
-    在 find_salt 基礎上支援 None 欄位（不限制）。
-    透過包裝 desired，將 None 欄位轉為隨機值，並使用自訂 worker 驗證。
-    """
+def _worker_flexible(args):
+    """多核心 worker：搜尋一個批次，回傳符合條件的 salt 或 None。"""
     import random
-    import time
     import string
     from constants import SPECIES, EYES, HATS
     from patcher import bun_hash_batch, mulberry32, pick, roll_rarity, roll_stats_from_rng
+
+    user_id, desired_filter, batch_size, seed = args
+    rnd = random.Random(seed)
+    chars = string.ascii_letters + string.digits
 
     rarity = desired_filter["rarity"]
     want_species = desired_filter["species"]
@@ -207,59 +207,80 @@ def _find_salt_flexible(user_id, desired_filter, on_progress):
     want_peak = desired_filter.get("peak")
     want_dump = desired_filter.get("dump")
 
+    salts = ["".join(rnd.choices(chars, k=15)) for _ in range(batch_size)]
+    keys = [user_id + s for s in salts]
+    hashes = bun_hash_batch(keys)
+
+    for salt, h in zip(salts, hashes):
+        rng = mulberry32(h)
+        r = roll_rarity(rng)
+        if r != rarity:
+            continue
+        sp = pick(rng, SPECIES)
+        if want_species and sp != want_species:
+            continue
+        eye = pick(rng, EYES)
+        if want_eye and eye != want_eye:
+            continue
+        hat = "none" if r == "common" else pick(rng, HATS)
+        if want_hat and hat != want_hat:
+            continue
+        shiny = rng() < 0.01
+        if want_shiny and not shiny:
+            continue
+        stats, peak, dump = roll_stats_from_rng(rng, r)
+        if want_peak and peak != want_peak:
+            continue
+        if want_dump and dump != want_dump:
+            continue
+        return salt, sp, eye, hat, shiny, stats
+    return None
+
+
+def _find_salt_flexible(user_id, desired_filter, on_progress):
+    """
+    支援 None 欄位（不限制）的多核心 salt 搜尋。
+    """
+    import random
+    import time
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
+
     batch_size = 10000
+    num_workers = max(1, multiprocessing.cpu_count())
+    queue_depth = num_workers * 2
     total_attempts = 0
     start_time = time.time()
 
-    def check_batch(salts, hashes):
-        for salt, h in zip(salts, hashes):
-            rng = mulberry32(h)
-            r = roll_rarity(rng)
-            if r != rarity:
-                continue
-            sp = pick(rng, SPECIES)
-            if want_species and sp != want_species:
-                continue
-            eye = pick(rng, EYES)
-            if want_eye and eye != want_eye:
-                continue
-            hat = "none" if r == "common" else pick(rng, HATS)
-            if want_hat and hat != want_hat:
-                continue
-            shiny = rng() < 0.01
-            if want_shiny and not shiny:
-                continue
-            stats, peak, dump = roll_stats_from_rng(rng, r)
-            if want_peak and peak != want_peak:
-                continue
-            if want_dump and dump != want_dump:
-                continue
-            return salt, sp, eye, hat, shiny, stats
-        return None
+    def make_args():
+        return (user_id, desired_filter, batch_size, random.randint(0, 2**32))
 
-    chars = string.ascii_letters + string.digits
-    while True:
-        salts = ["".join(random.choices(chars, k=15)) for _ in range(batch_size)]
-        keys = [user_id + s for s in salts]
-        hashes = bun_hash_batch(keys)
-        result = check_batch(salts, hashes)
-        total_attempts += batch_size
-        if result:
-            salt, sp, eye, hat, shiny, stats = result
-            return {
-                "salt": salt,
-                "species": sp,
-                "eye": eye,
-                "hat": hat,
-                "shiny": shiny,
-                "stats": stats,
-                "attempts": total_attempts,
-                "elapsed": time.time() - start_time,
-            }
-        if on_progress:
-            elapsed = time.time() - start_time
-            rate = total_attempts / elapsed if elapsed > 0 else 0
-            on_progress({"attempts": total_attempts, "elapsed": elapsed, "rate": rate})
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        pending = {executor.submit(_worker_flexible, make_args()) for _ in range(queue_depth)}
+        while True:
+            done, pending = wait(pending, return_when=FIRST_COMPLETED)
+            for future in done:
+                total_attempts += batch_size
+                result = future.result()
+                if result:
+                    for f in pending:
+                        f.cancel()
+                    salt, sp, eye, hat, shiny, stats = result
+                    return {
+                        "salt": salt,
+                        "species": sp,
+                        "eye": eye,
+                        "hat": hat,
+                        "shiny": shiny,
+                        "stats": stats,
+                        "attempts": total_attempts,
+                        "elapsed": time.time() - start_time,
+                    }
+                pending.add(executor.submit(_worker_flexible, make_args()))
+            if on_progress:
+                elapsed = time.time() - start_time
+                rate = total_attempts / elapsed if elapsed > 0 else 0
+                on_progress({"attempts": total_attempts, "elapsed": elapsed, "rate": rate})
 
 
 if __name__ == "__main__":
