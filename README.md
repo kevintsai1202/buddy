@@ -186,9 +186,22 @@ Copy-Item -Recurse buddy-reroll $env:USERPROFILE\.claude\skills\
 
 ### 使用方式
 
-安裝後只要說：
+安裝後直接對 Claude 說出你的需求，Claude 會互動詢問以下設定再執行：
+
+| 項目 | 選項 | 預設 |
+| ---- | ---- | ---- |
+| **物種** | 🦆 duck / 🪿 goose / 🫧 blob / 🐱 cat / 🐉 dragon / 🐙 octopus / 🦉 owl / 🐧 penguin / 🐢 turtle / 🐌 snail / 👻 ghost / 🦎 axolotl / 🦫 capybara / 🌵 cactus / 🤖 robot / 🐰 rabbit / 🍄 mushroom / 🐈 chonk | 任意 |
+| **稀有度** | common / uncommon / rare / epic / **legendary** | legendary |
+| **眼睛** | `·` `✦` `×` `◉` `@` `°` | 任意 |
+| **帽子** | none / crown / tophat / propeller / halo / wizard / beanie / tinyduck | 任意 |
+| **閃光版** | yes / no | no |
+| **屬性下限** | 數值（如 80 代表全屬性 >= 80） | 無限制 |
+
+範例對話：
 
 > 「幫我刷一隻 legendary dragon」
+> 「我要閃光版的 legendary cat，帽子要皇冠」
+> 「幫我找全屬性 90 以上的 legendary penguin」
 
 Claude 就會自動執行腳本、判斷用戶類型、寫入設定。
 
