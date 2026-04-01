@@ -146,6 +146,55 @@ bun <skill-path>/scripts/buddy-reroll.js --species cat --min-stats 80
 
 ### 自動執行流程
 
+0. **詢問用戶偏好**（若未在對話中指定，必須先詢問）：
+
+   以下方式逐一詢問，或一次列出讓用戶選擇：
+
+   **物種**（必問）：
+   ```
+   你想要哪種寵物？
+   🦆 duck（小鴨）  🪿 goose（鵝鵝）  🫧 blob（軟泥怪）  🐱 cat（貓貓）
+   🐉 dragon（龍）  🐙 octopus（章魚） 🦉 owl（貓頭鷹）  🐧 penguin（企鵝）
+   🐢 turtle（烏龜）🐌 snail（蝸牛）  👻 ghost（幽靈）  🦎 axolotl（六角恐龍）
+   🦫 capybara（水豚）🌵 cactus（仙人掌）🤖 robot（機器人）🐰 rabbit（兔兔）
+   🍄 mushroom（蘑菇）🐈 chonk（肥貓）
+   （不指定則任意物種）
+   ```
+
+   **稀有度**（必問）：
+   ```
+   想要哪個稀有度？
+   ⚪ common（普通，60%）  🟢 uncommon（非普通，25%）  🔵 rare（稀有，10%）
+   🟣 epic（史詩，4%）    🟡 legendary（傳說，1%）
+   （預設：legendary）
+   ```
+
+   **眼睛樣式**（選填）：
+   ```
+   有指定眼睛嗎？（可略過）
+   ·  ✦  ×  ◉  @  °
+   ```
+
+   **帽子**（選填）：
+   ```
+   有指定帽子嗎？（可略過）
+   none（無）  crown（皇冠）  tophat（大禮帽）  propeller（螺旋帽）
+   halo（光環）  wizard（巫師帽）  beanie（毛帽）  tinyduck（小鴨帽）
+   ```
+
+   **閃光版**（選填）：
+   ```
+   要閃光版（shiny）嗎？機率約 1%，會讓搜尋變慢。（yes / no，預設 no）
+   ```
+
+   **屬性下限**（選填）：
+   ```
+   有指定最低屬性值嗎？（例如輸入 80 代表所有屬性 >= 80，可略過）
+   屬性：DEBUGGING / PATIENCE / CHAOS / WISDOM / SNARK
+   ```
+
+   收集完畢後，組合成對應的腳本參數再執行。
+
 1. **先確認 Bun 已安裝**：
 
 ```bash
