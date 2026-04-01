@@ -129,13 +129,16 @@ py --version 2>&1 || python3 --version 2>&1 || python --version 2>&1
 
 ### Step 2：詢問用戶偏好（若未在對話中指定）
 
+一次列出所有選項讓用戶選擇：
+
 **物種**（必問）：
 
 ```
-你想要哪種寵物？
-🦆 duck  🪿 goose  🫧 blob  🐱 cat  🐉 dragon  🐙 octopus
-🦉 owl   🐧 penguin 🐢 turtle 🐌 snail 👻 ghost  🦎 axolotl
-🦫 capybara 🌵 cactus 🤖 robot 🐰 rabbit 🍄 mushroom 🐈 chonk
+🦆 duck     🪿 goose    🫧 blob     🐱 cat
+🐉 dragon   🐙 octopus  🦉 owl      🐧 penguin
+🐢 turtle   🐌 snail    👻 ghost    🦎 axolotl
+🦫 capybara 🌵 cactus   🤖 robot    🐰 rabbit
+🍄 mushroom 🐈 chonk
 （不指定則任意）
 ```
 
@@ -145,11 +148,41 @@ py --version 2>&1 || python3 --version 2>&1 || python --version 2>&1
 ⚪ common  🟢 uncommon  🔵 rare  🟣 epic  🟡 legendary（預設）
 ```
 
-**眼睛、帽子、閃光、最強/最弱屬性**（選填，可略過）
+**眼睛**（選填）：
 
-**名字**（必問，或讓腳本結束前詢問）
+```
+·  ✦  ×  ◉  @  °
+（不指定則任意）
+```
 
-### Step 3：組合指令並執行
+**帽子**（選填）：
+
+```
+none（無）  crown（皇冠）  tophat（大禮帽）  propeller（螺旋帽）
+halo（光環） wizard（巫師帽） beanie（毛帽）  tinyduck（小鴨帽）
+（不指定則任意）
+```
+
+**閃光**（選填）：
+
+```
+yes / no（預設 no，開啟後搜尋時間大幅增加）
+```
+
+**最強屬性**（選填）：
+
+```
+DEBUGGING  PATIENCE  CHAOS  WISDOM  SNARK
+（不指定則任意）
+```
+
+**名字**（必問）
+
+### Step 3：提醒關閉 Claude Code
+
+> ⚠️ **執行前必須完全關閉 Claude Code**（包含 VSCode 擴充），否則 binary 被佔用會導致 patch 失敗。
+
+### Step 4：組合指令並執行
 
 將偏好組合成 `reroll.py` 參數，帶入 `--name` 避免互動輸入：
 
@@ -158,7 +191,7 @@ cd <skill-path>/scripts/claude-pet-rebirth
 py reroll.py --species <物種> --rarity legendary --name <名字>
 ```
 
-### Step 4：提示重啟並執行 `/buddy`
+### Step 5：提示重啟並執行 `/buddy`
 
 ---
 
