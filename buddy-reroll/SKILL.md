@@ -146,96 +146,90 @@ bun <skill-path>/scripts/buddy-reroll.js --species cat --min-stats 80
 
 ### 自動執行流程
 
-0. **詢問用戶偏好**（若未在對話中指定，必須先詢問）：
+#### Step 0：偵測用戶類型
 
-   以下方式逐一詢問，或一次列出讓用戶選擇：
+```bash
+grep -o '"oauthAccount"' /c/Users/${USER}/.claude.json
+# 有輸出 = OAuth 用戶 → 走 ClaudePetRebirth 流程
+# 無輸出 = API Key 用戶 → 走 reroll 腳本流程
+```
+
+---
+
+### OAuth 用戶流程（ClaudePetRebirth）
+
+> 原理：暴力搜尋 salt，patch Claude Code binary，永久生效，不需環境變數。
+
+#### Step 1：確認系統需求
+
+```bash
+bun --version   # 需要 Bun
+python --version  # 需要 Python 3.8+
+git --version
+```
+
+#### Step 2：clone 並啟動
+
+```bash
+git clone https://github.com/mitchhuang777/ClaudePetRebirth
+cd ClaudePetRebirth
+python main.py
+```
+
+#### Step 3：引導用戶操作互動介面
+
+告知用戶操作方式：
+- `Enter` → 重新抽取隨機寵物
+- `k` → 收藏當前寵物
+- `p` → 自選模式（指定物種/稀有度/眼睛/帽子/最強屬性）
+- `f` → 查看收藏並套用到 Claude Code
+- `q` → 離開
+
+套用後重啟 Claude Code，執行 `/buddy` 即可看到新寵物。
+
+---
+
+### API Key 用戶流程（reroll 腳本）
+
+#### Step 0：詢問用戶偏好（若未在對話中指定）
 
    **物種**（必問）：
    ```
    你想要哪種寵物？
-   🦆 duck（小鴨）  🪿 goose（鵝鵝）  🫧 blob（軟泥怪）  🐱 cat（貓貓）
-   🐉 dragon（龍）  🐙 octopus（章魚） 🦉 owl（貓頭鷹）  🐧 penguin（企鵝）
-   🐢 turtle（烏龜）🐌 snail（蝸牛）  👻 ghost（幽靈）  🦎 axolotl（六角恐龍）
-   🦫 capybara（水豚）🌵 cactus（仙人掌）🤖 robot（機器人）🐰 rabbit（兔兔）
-   🍄 mushroom（蘑菇）🐈 chonk（肥貓）
+   🦆 duck  🪿 goose  🫧 blob  🐱 cat  🐉 dragon  🐙 octopus
+   🦉 owl   🐧 penguin 🐢 turtle 🐌 snail 👻 ghost  🦎 axolotl
+   🦫 capybara 🌵 cactus 🤖 robot 🐰 rabbit 🍄 mushroom 🐈 chonk
    （不指定則任意物種）
    ```
 
    **稀有度**（必問）：
    ```
-   想要哪個稀有度？
-   ⚪ common（普通，60%）  🟢 uncommon（非普通，25%）  🔵 rare（稀有，10%）
-   🟣 epic（史詩，4%）    🟡 legendary（傳說，1%）
-   （預設：legendary）
+   ⚪ common  🟢 uncommon  🔵 rare  🟣 epic  🟡 legendary（預設）
    ```
 
-   **眼睛樣式**（選填）：
-   ```
-   有指定眼睛嗎？（可略過）
-   ·  ✦  ×  ◉  @  °
-   ```
+   **眼睛、帽子、閃光、屬性下限**（選填，可略過）
 
-   **帽子**（選填）：
-   ```
-   有指定帽子嗎？（可略過）
-   none（無）  crown（皇冠）  tophat（大禮帽）  propeller（螺旋帽）
-   halo（光環）  wizard（巫師帽）  beanie（毛帽）  tinyduck（小鴨帽）
-   ```
-
-   **閃光版**（選填）：
-   ```
-   要閃光版（shiny）嗎？機率約 1%，會讓搜尋變慢。（yes / no，預設 no）
-   ```
-
-   **屬性下限**（選填）：
-   ```
-   有指定最低屬性值嗎？（例如輸入 80 代表所有屬性 >= 80，可略過）
-   屬性：DEBUGGING / PATIENCE / CHAOS / WISDOM / SNARK
-   ```
-
-   收集完畢後，組合成對應的腳本參數再執行。
-
-1. **先確認 Bun 已安裝**：
+#### Step 1：確認 Bun 已安裝
 
 ```bash
 bun --version
 ```
 
-若未安裝，依平台引導安裝後，提示用戶重新開啟終端機再繼續。
+#### Step 2：執行 reroll 腳本
 
-2. **判斷用戶類型**：
-```bash
-grep -o '"oauthAccount"' /c/Users/${USER}/.claude.json
-# 有輸出 = OAuth 用戶，走 OAuth 流程
-# 無輸出 = API Key 用戶，直接改 userID
-```
-
-2. **執行 reroll 腳本**（必須用 bun，不能用 node）：
 ```bash
 bun <skill-path>/scripts/buddy-reroll.js --species <物種> --rarity legendary --count 1
 ```
 
-3. **API Key 用戶 - 直接寫入 userID**：
+#### Step 3：寫入 userID
+
 ```bash
 # 備份
 cp /c/Users/${USER}/.claude.json /c/Users/${USER}/.claude.json.backup
 # 用 Edit 工具修改 userID 欄位，並刪除 companion 欄位
 ```
 
-4. **OAuth 用戶 - 替換整個 .claude.json**：
-```bash
-cp /c/Users/${USER}/.claude.json /c/Users/${USER}/.claude.json.backup
-cat > /c/Users/${USER}/.claude.json << 'EOF'
-{
-  "hasCompletedOnboarding": true,
-  "theme": "light-daltonized",
-  "userID": "<找到的 uid>"
-}
-EOF
-```
-然後提示使用者直接執行 `claude` 啟動（已用 `claude setup-token` 設定過 token 的用戶無需加環境變數）
-
-5. **提示使用者執行 `/buddy` 領取**
+#### Step 4：提示重啟並執行 `/buddy`
 
 ---
 
@@ -250,11 +244,14 @@ bun buddy-reroll.js --check <uid>
 
 ## OAuth 用戶完整流程
 
-**原理**：用 `CLAUDE_CODE_OAUTH_TOKEN` 環境變數登入時，Claude Code **不會**把 `accountUuid` 寫入 `~/.claude.json`，因此 buddy 系統退回使用 `userID` 欄位，讓我們可以注入自訂 UID。
+**原理**：用 `CLAUDE_CODE_OAUTH_TOKEN` 環境變數啟動時，若 `.claude.json` 只含最小設定（無 `oauthAccount`），buddy 系統會使用 `userID` 欄位計算 hash，而非 `accountUuid`。
+
+> ⚠️ **每次啟動都必須帶環境變數**，否則 `oauthAccount` 會被寫回，reroll 失效。
+> ⚠️ **請勿將 token 貼入對話中**，token 一旦暴露應立即在 claude.ai 撤銷並重新產生。
 
 ### 步驟 1：取得 OAuth Token
 
-在 PowerShell / 終端機執行（不能在 Claude Code 工具環境中執行，需開獨立視窗）：
+在**獨立 PowerShell**（非 VSCode 終端機）執行：
 
 ```powershell
 claude setup-token
@@ -262,50 +259,49 @@ claude setup-token
 
 複製輸出的 token（格式：`sk-ant-oat01-...`）。
 
-### 步驟 2：備份並替換 `~/.claude.json`
+或至 claude.ai → 帳號設定 → API Keys 產生。
 
-Claude Code 輔助執行：
+### 步驟 2：執行 reroll 腳本找到目標 UID
+
+```bash
+bun <skill-path>/scripts/buddy-reroll.js --species owl --rarity legendary --count 1
+```
+
+複製輸出的 `uid:` 值。
+
+### 步驟 3：將 `.claude.json` 設為最小值 + 目標 userID
 
 ```bash
 # 備份
 cp /c/Users/${USER}/.claude.json /c/Users/${USER}/.claude.json.backup
 
-# 寫入最小設定 + 目標 userID
+# 寫入最小設定（關鍵：不含 oauthAccount、不含 companion）
 cat > /c/Users/${USER}/.claude.json << 'EOF'
 {
   "hasCompletedOnboarding": true,
-  "theme": "light-daltonized",
+  "theme": "dark",
   "userID": "<在這裡填入 reroll 腳本找到的 uid>"
 }
 EOF
 ```
 
-> 注意：`theme` 保留使用者偏好，`companion` 欄位不寫入（讓系統重新生成名字）
+> 關鍵：`hasCompletedOnboarding: true` 防止啟動時觸發完整 OAuth 流程。
 
-### 步驟 3：啟動 Claude Code
+### 步驟 4：用環境變數啟動並領取
 
-若已執行過 `claude setup-token`，直接在 PowerShell 執行：
-
-```powershell
-claude
-```
-
-若尚未設定 token，改用環境變數方式：
+在**獨立 PowerShell**（不可用 VSCode）執行：
 
 ```powershell
 $env:CLAUDE_CODE_OAUTH_TOKEN="<你的token>"; claude
 ```
 
-> **提示**：執行一次 `claude setup-token` 後，之後每次只需 `claude` 即可，不需再帶 token。
-
-### 步驟 4：執行 `/buddy` 領取
-
-啟動後直接輸入 `/buddy` 即可領到目標寵物。
+啟動後立刻輸入 `/buddy` 領取目標寵物。
 
 ### 注意事項
 
-- 原始備份在 `~/.claude.json.backup`，如需還原：`cp ~/.claude.json.backup ~/.claude.json`
-- 若重啟後還是舊寵物，確認 `.claude.json` 沒有 `oauthAccount` 欄位
+- 每次想用目標寵物，都需要用環境變數方式啟動
+- 若透過 VSCode 擴充或直接執行 `claude` 啟動，`oauthAccount` 會被寫回，恢復原本寵物
+- 備份還原：`cp ~/.claude.json.backup ~/.claude.json`
 
 ---
 
@@ -315,7 +311,10 @@ $env:CLAUDE_CODE_OAUTH_TOKEN="<你的token>"; claude
 A：確認用 `bun` 執行腳本，不能用 `node`。兩者 hash 算法不同！
 
 **Q：修改後重啟還是舊寵物？**
-A：確認 `companion` 欄位已完全刪除，不只是清空。
+A：OAuth 用戶應改用 ClaudePetRebirth（patch binary）。若使用環境變數方式，確認每次都帶 `CLAUDE_CODE_OAUTH_TOKEN`。
+
+**Q：ClaudePetRebirth 套用後重啟還是舊寵物？**
+A：確認 binary 已成功修補（`patch_binary` 步驟顯示 verified），且 `companion` 欄位已更新。
 
 **Q：SALT 改了怎麼辦？**
 A：檢查腳本裡的 `const SALT = 'friend-2026-401'` 是否與 Claude Code 版本匹配。可以請 Claude 根據新版本更新腳本。
